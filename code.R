@@ -5,6 +5,7 @@ library(rnaturalearth)
 library(sf)
 library(data.table)
 
+
 #Fish Data 
 dat <- read.csv("WDFW-SGS.csv")
 
