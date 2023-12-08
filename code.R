@@ -12,36 +12,10 @@ dat <- read.csv("WDFW-SGS.csv")
 sky_river_cords <- read.csv("sky_river_cords.csv")
 sky_cords <- select(sky_river_cords,Lat, Long)
 
-#Get Bird Data
-y <- paste0("2010", ",", "2020")
-m <- paste0("1", ",", "12")
-
-dat.l <- list()
-n.l <- list
-species <- c("Empidonax difficilis", "Cardellina pusilla", "Catharus ustulatus", "Regulus calendula")
-
-#emp <- dat.l[[1]]
-for (s in species[2:4]) {
-
-  d<- occ_data(scientificName = s, year = y, month = m,
-                                 limit = n.obs, country = "US",
-                                 basisOfRecord = "HUMAN_OBSERVATION",
-                                 stateProvince = "Washington")
-  
-  dat.l[[paste0(s)]] <- d[[2]]
-  n.l[[paste0()]] <- d$meta$count
-}
-
-dat.l[[4]] <- emp
-
-dat <- rbindlist(dat.l,fill=T)
 
 
-head(dat)
-bird <- rbindlist(dat.l,fill=T)
-
-saveRDS(bird,"washbird.data.RDS")
-dat <- readRDS("washbird.data.RDS")
+#read in bird data
+dat <- readRDS("wash_bird_data.RDS")
 
 #Get rid of random columns 
 bird.f <- select(bird,key,scientificName, decimalLongitude,decimalLatitude,individualCount,year)
