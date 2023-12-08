@@ -6,36 +6,42 @@ library(sf)
 library(data.table)
 
 #Fish Data 
-dat <- read.csv("WDFW-SGS.f.csv")
+dat <- read.csv("WDFW-SGS.csv")
 
 #Skyknomish River Coordinates from Google Maps 
 sky_river_cords <- read.csv("sky_river_cords.csv")
 sky_cords <- select(sky_river_cords,Lat, Long)
 
 #Get Bird Data
-y = "2010,2020"
-dat.l <-list()
-species<- c("Empidonax difficilis")
-for(s in species){
-  n.obs <-  occ_data(scientificName = bird_species,
-                     year=y,
-                     limit=0,
-                     basisOfRecord = "HUMAN_OBSERVATION",
-                     stateProvince="Washington")$meta$count
-  
-  print(n.obs)
-  
-  
-  dat.l[[paste0(s)]] <- occ_data(scientificName = bird_species,
-                                 year=y,
-                                 limit=n.obs,
-                                 country="US",
+y <- paste0("2010", ",", "2020")
+m <- paste0("1", ",", "12")
+
+dat.l <- list()
+n.l <- list
+species <- c("Empidonax difficilis", "Cardellina pusilla", "Catharus ustulatus", "Regulus calendula")
+
+#emp <- dat.l[[1]]
+for (s in species[2:4]) {
+
+  d<- occ_data(scientificName = s, year = y, month = m,
+                                 limit = n.obs, country = "US",
                                  basisOfRecord = "HUMAN_OBSERVATION",
-                                 stateProvince="Washington")[[2]]
+                                 stateProvince = "Washington")
   
-  
+  dat.l[[paste0(s)]] <- d[[2]]
+  n.l[[paste0()]] <- d$meta$count
 }
+
+dat.l[[4]] <- emp
+
+dat <- rbindlist(dat.l,fill=T)
+
+
+head(dat)
 bird <- rbindlist(dat.l,fill=T)
+
+saveRDS(bird,"washbird.data.RDS")
+dat <- readRDS("washbird.data.RDS")
 
 #Get rid of random columns 
 bird.f <- select(bird,key,scientificName, decimalLongitude,decimalLatitude,individualCount,year)
@@ -70,3 +76,10 @@ Final_data <- left_join(sky.bird,sky.salmon, by="year")%>%
 ggplot(all, aes(x = year)) +
   geom_point(aes(y = count.x, color = "Bird.count"), size = 3) +
   geom_point(aes(y = count.y, color = "Salmon.count"), size = 3) 
+
+
+#assessing data: correlation between bird arrival/presence in specific areas 
+#problems: server error, max offset error, trying to push fish data set  - try to push as url instead, or start summarise and save that as an rds(way to big)(ben trying to filter out unneeded data)
+#create models, - example: lm(bird ~ salmon), t test to see significance, also create plots describing this data
+#... time series analysis (ccf)?, have to find a way to assess confounding variables
+# month vs day?
