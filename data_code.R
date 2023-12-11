@@ -63,7 +63,11 @@ skyko.birds.f <- skyko.birds %>%
 final.dat <- left_join(skyko.birds.f,fish.f,by=c('year','month'))
 
 final_graph <- ggplot(final.dat,aes(x=month),)+geom_point(aes(y=bird.count),col='blue')+
+<<<<<<< HEAD
   geom_point(aes(y=salmon.count),col='red')+facet_wrap(year~.)+ylim(0,900)
+=======
+  geom_point(aes(y=salmon.count),col='red')+facet_wrap(year~.)+ylim(0,50)
+>>>>>>> 58a14360798d852e4af8504ff3048e4c96575aa0
 
 final_graph
 
@@ -71,7 +75,11 @@ final.dat.m <- final.dat %>%
   filter(month %in% c('7','8','9','10','11','12'))
 
 final_graph_month_limit <- ggplot(final.dat.m,aes(x=month),)+geom_point(aes(y=bird.count),col='blue')+
+<<<<<<< HEAD
   geom_point(aes(y=salmon.count),col='red')+facet_wrap(year~.) +ylim(0,900)
+=======
+  geom_point(aes(y=salmon.count),col='red')+facet_wrap(year~.) +ylim(0,100)
+>>>>>>> 58a14360798d852e4af8504ff3048e4c96575aa0
 
 sum(skyko.birds.f$bird.count)
 
