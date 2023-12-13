@@ -10,6 +10,8 @@ Salmon have very complex lifestyles and are one of the species of fish that are 
 
 ##Methods
 
+We used a for loop to read in our bird data and then saved the data set as an RDS as the code takes a very long time to run and wouldn't want to repeat the process. We read in our salmon data in a simple csv file and filtered it to only contain data in Skykomish river from years 2008 to 2020. We then filtered our bird data to only include the birds found within 3 kilometers of the river. We found that human observations of bird data increased exponentially as the years went on, so we had to standardize our data to make sure that the number of birds being sampled was a percentage of total birds sampled in Washington per year to get accurate results. This is because eBird data is biased by both the location of sightings and year @tang2021modeling. We then modeled the log bird counts with the log of the salmon counts for each species for each year. We analyzed the bird count data the year after the salmon arrived as the salmon spawn in the last three months of the year and die afterwards which contributes to the added nutrients. The residuals were added and if they were significantly off from the trend of observations, we could conclude the salmon had a significant impact on the terrestrial ecosystem. Anova tests were then run to see the significance of each model.
+
 ##Results
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
