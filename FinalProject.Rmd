@@ -54,6 +54,7 @@ sky_cords_sf <- st_as_sf(river.coords, coords = c("Long", "Lat"),crs=4326)
 bird$distance <- apply(st_distance(bird_sf,sky_cords_sf),1,min)
 
 bird.f <- bird %>%
+  filter(year <2021) %>%
   filter(distance < 3000) %>%
   group_by(year) %>%
   summarise(bird.count= n())
@@ -62,7 +63,7 @@ bird.f <- bird %>%
 #Change bird count values to percent of total WA observations for 
 key <- name_backbone(name='Empidonax difficilis')
 
-y2 <- 2010:2022 %>% as.character
+y2 <- 2010:2020 %>% as.character
 yr_l <- list()
 for(i in y2){
   yr_l[[i]] <- occ_count(basisOfRecord = "HUMAN_OBSERVATION",stateProvince="Washington",year=i,country="US",orderKey=key$orderKey)
