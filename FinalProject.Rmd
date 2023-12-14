@@ -27,7 +27,7 @@ library(lme4)
 river.coords <- read.csv("sky_river_cords.csv")
 river.coords <- select(river.coords,Lat,Long)
 bird <- readRDS("wash_bird_data.RDS")
-fish <- read.csv("WDFW-SGS.csv")
+fish <- read.csv("salmon-data.csv")
 
 #Filter Fish to salmon in select river and add year column 
 fish <- fish %>% 
