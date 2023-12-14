@@ -6,10 +6,10 @@ output: html_document
 ---
 ##Introduction
 
-Salmon have very complex lifestyles and are one of the species of fish that are able to live in both fresh water and salt water habitats. They spend the early part of their lives in fresh water, spend most of their lives in salt water, but migrate back to fresh water habitats to spawn. After spawning, both male and female salmon typically die. This report will analyze these migrations of different species of salmon in the Skykomish river in the state of Washington to determine whether or not the increasing number of salmon impacts the population of four different species of birds. Modeling and analysis of bird and salmon count data from 2002 to 2022 in the state of Washington will enable us to determine if the the number of birds from our four species increases in the winter when more salmon arrive. In addition, if on an individual winter there are more salmon than usual, we will also determine if the bird count will be significantly different. We already know that salmon play an immense role in freshwater ecosystems: not only are salmon  a food source for different animals such as bears, but decomposition of their post-spawning bodies and migration from salt to fresh water ecosystems provide and exchange nutrients within the water. Previous studies have analyzed the relationship between salmon and aquatic and terrestrial ecosystems @walsh2020relationships. This report will dive deeper into these phenomena and seeks to find a more specific relationship between the impact of salmon on bird species. With these important impacts in mind, climate change poses a future threat to salmon migration due to warmer waters, altered flow conditions, and changes in reproductive success (@fenkes2016potential), which would have larger impacts on the ecosystem of the Skykomish and other rivers as a whole.
+Salmon have very complex lifestyles and are one of the species of fish that are able to live in both fresh water and salt water habitats. They spend the early part of their lives in fresh water, spend most of their lives in salt water, but migrate back to fresh water habitats to spawn. After spawning, both male and female salmon typically die. This report will analyze these migrations of different species of salmon in the Skykomish river in the state of Washington to determine whether or not the increasing number of salmon impacts the population of four different species of birds. Modeling and analysis of bird and salmon count data from 2010 to 2022 within 3 kilometers of the Skykomish river will enable us to determine if the the number of birds from our four species increases in the winter when more salmon arrive. In addition, if on an individual winter there are more salmon than usual, we will also determine if the bird count will be significantly different. We already know that salmon play an immense role in freshwater ecosystems: not only are salmon  a food source for different animals such as bears, but decomposition of their post-spawning bodies and migration from salt to fresh water ecosystems provide and exchange nutrients within the water. Previous studies have analyzed the relationship between salmon and aquatic and terrestrial ecosystems @walsh2020relationships. This report will dive deeper into these phenomena and seeks to find a more specific relationship between the impact of salmon's terrestrial impact on bird species. With these important impacts in mind, climate change poses a future threat to salmon migration due to warmer waters, altered flow conditions, and changes in reproductive success (@fenkes2016potential), which would have larger impacts on the ecosystem of the Skykomish and other rivers as a whole.
 
 ##Methods
-To begin, we used a for loop to read in our bird data, saving this data set as an RDS file in order to avoid repeating the long run-time. We then read in our salmon data as a simple csv file and filtered it to only contain data in Skykomish river from years 2008 to 2020. Next, we filtered our bird data from the saved RDS file to only include the birds found within 3 kilometers of the river. We found that human observations of bird data increased exponentially as the years went on, so, in order to get accurate results, we standardized our data to ensure that the number of birds sampled was a percentage of total birds sampled in Washington per year. This exponential increase in human observations of bird data over time is due to eBird data being biased by both the location of sightings and year @tang2021modeling. We then modeled the log bird counts with the log of the salmon counts for each species and for each year. We also analyzed the bird count data for the year after the salmon arrived, as the salmon spawn in the last three months of the year and die afterwards, which contributes to the added nutrients. The residuals were added, and if they were significantly off from the trend of observations, we could conclude that the salmon had a significant impact on the terrestrial ecosystem. Anova tests were then run to determine the significance of each model.
+To begin, we used a for loop to read in our bird data, saving this data set as an RDS file in order to avoid repeating the long run-time. We then read in our salmon data as a simple csv file and filtered it to only contain data in Skykomish river from years 2010 to 2022. Next, we filtered our bird data from the saved RDS file to only include the birds found within 3 kilometers of the river. We found that human observations of bird data increased exponentially as the years went on, so, in order to get accurate results, we standardized our data to ensure that the number of birds sampled was a percentage of total birds sampled in Washington per year. This exponential increase in human observations of bird data over time is due to eBird data being biased by both the location of sightings and the years when they were taken @tang2021modeling. We then modeled the log bird counts with the log of the salmon counts for each species and for each year. We also analyzed the bird count data for the year after the salmon arrived, as the salmon spawn in the last three months of the year and die afterwards, which contributes to the added nutrients. The residuals were added, and if they were significantly off from the trend of observations, we could conclude that the salmon had a significant impact on the terrestrial ecosystem. Anova tests were then run to determine the significance of each model.
 
 ##Results
 ```{r setup, include=FALSE}
@@ -20,75 +20,89 @@ library(usmap)
 library(rnaturalearth)
 library(sf)
 library(data.table)
+library(lubridate)
+library(lme4)
 ```
-```{r}
-#Fish Data 
-dat <- read.csv("WDFW-SGS.csv")
+```{r, echo=FALSE, message=FALSE}
+river.coords <- read.csv("sky_river_cords.csv")
+river.coords <- select(river.coords,Lat,Long)
+bird <- readRDS("wash_bird_data.RDS")
+fish <- read.csv("WDFW-SGS.csv")
 
-#Skyknomish River Coordinates from Google Maps 
-sky_river_cords <- read.csv("sky_river_cords.csv")
-sky_cords <- select(sky_river_cords,Lat, Long)
+#Filter Fish to salmon in select river and add year column 
+fish <- fish %>% 
+  filter(StreamName %in% c("Sky Slough C","Sky Slough B","Sky Slough A","Snohomish R. Cont. As Skykomish R. @ R.M. 20.51")) %>%
+  filter(SpeciesAbbr %in% c('CHIN','PINK','COHO','CHUM','SOCK')) 
 
-#Get Bird Data
-y = "2010,2020"
-dat.l <-list()
-species <- c("Empidonax difficilis")
-for(s in species){
-  n.obs <-  occ_data(scientificName = bird_species,
-                     year=y,
-                     limit=0,
-                     basisOfRecord = "HUMAN_OBSERVATION",
-                     stateProvince="Washington")$meta$count
-  
-  print(n.obs)
-  
-  
-  dat.l[[paste0(s)]] <- occ_data(scientificName = bird_species,
-                                 year=y,
-                                 limit=n.obs,
-                                 country="US",
-                                 basisOfRecord = "HUMAN_OBSERVATION",
-                                 stateProvince="Washington")[[2]]
-  
-  
+
+fish$SurveyDate <- as.Date(fish$SurveyDate,format="%m/%d/%Y")
+fish$year <- year(fish$SurveyDate)
+fish.f <- fish %>%
+  filter(year > 2008,year <2020) %>%
+  group_by(year) %>%
+  summarise(salmon.count = sum(LiveTotal,na.rm=TRUE))
+fish.f$year <- as.integer(fish.f$year)
+fish.f$year <- fish.f$year+1
+
+#Filter birds to relevant years then find birds only within 3km of river 
+bird <- bird %>%
+  filter(year > 2009)
+bird_sf <- st_as_sf(bird, coords = c("decimalLongitude", "decimalLatitude"),crs=4326)
+sky_cords_sf <- st_as_sf(river.coords, coords = c("Long", "Lat"),crs=4326)
+bird$distance <- apply(st_distance(bird_sf,sky_cords_sf),1,min)
+
+bird.f <- bird %>%
+  filter(distance < 3000) %>%
+  group_by(year) %>%
+  summarise(bird.count= n())
+
+
+#Change bird count values to percent of total WA observations for 
+key <- name_backbone(name='Empidonax difficilis')
+
+y2 <- 2010:2022 %>% as.character
+yr_l <- list()
+for(i in y2){
+  yr_l[[i]] <- occ_count(basisOfRecord = "HUMAN_OBSERVATION",stateProvince="Washington",year=i,country="US",orderKey=key$orderKey)
 }
-bird <- rbindlist(dat.l,fill=T)
 
-#Get rid of random columns 
-bird.f <- select(bird,key,scientificName, decimalLongitude,decimalLatitude,individualCount,year)
+total.obs <- tibble(year=y2 %>% as.integer(),total_n_obs=unlist(yr_l)) %>%
+  left_join(bird.f) %>%
+  left_join(fish.f)
+total.obs$p.bird.count <- total.obs$bird.count/total.obs$total_n_obs
 
-#Get salmon data for Skyknomish River 
-sky.salmon <- dat %>%
-  filter(SpeciesAbbr %in% c("CHIN","SOCK","COHO","PINK","CHUM","ATLA"),
-         !is.na(UpperLatitude), 
-         RunYear > 2010, StreamName %in% c("Sky Slough (LB)","Sky Slough A", 
-                                           "Sky Slough B","Sky Slough C", "Sky Slough D")) %>%
-  group_by(RunYear)%>%
-  summarise(count=n())%>%
-  rename(year = RunYear)
+#assessing correlation 
 
-# Find birds only near Skyknomish River 
-bird_sf <- st_as_sf(bird.f, coords = c("decimalLongitude", "decimalLatitude"),crs=4326)
-sky_cords_sf <- st_as_sf(sky_cords, coords = c("Long", "Lat"),crs=4326)
-bird.f$distance <- apply(st_distance(bird_sf,sky_cords_sf),1,min) 
-#this thing turns lat and long into distance in meters and puts the minimun distance to the river as a new data point 
+model <- lm(p.bird.count~log(salmon.count)*year,total.obs)
+summary(model)
+anova(model)
 
-sky.bird <- bird.f %>%
-  filter(distance < 2000) %>% #select for 2km away from river, we may want to change that to more or less 
-  group_by(year,scientificName)%>%
-  summarise(count=n()) %>%
-  rename(species = scientificName)
+#other things to include in final submission 
 
-#Join Salmon data to bird data
-Final_data <- left_join(sky.bird,sky.salmon, by="year")%>%
-  rename(Bird.count = count.x,Salmon.count = count.y)
+#graph showing that we effectively controlled for increasing effort in bird observation data 
+bird.sp <-bird %>%
+  filter(distance < 3000) %>%
+  group_by(year,scientificName) %>%
+  summarise(bird.count= n()) %>%
+  rename(n_obs=bird.count)
 
-#Plot 
-ggplot(all, aes(x = year)) +
-  geom_point(aes(y = count.x, color = "Bird.count"), size = 3) +
-  geom_point(aes(y = count.y, color = "Salmon.count"), size = 3) 
+residual.graph <- tibble(year=y2 %>% as.integer(),total_n_obs=unlist(yr_l)) %>% 
+  left_join(bird.sp) %>%
+  group_by(scientificName) %>% 
+  mutate(res=residuals(lm(log(n_obs)~log(total_n_obs)))) %>% 
+  ggplot(aes(year,res,col=scientificName))+geom_point()
+residual.graph
+
 ```
+
 
 ##Discussion
 
 ##Author Contributions
+Michael- Results
+Alexandra- Discussion
+Sean- Intro + methods
+Ben- Results
+Georgia- Intro + methods
+All met and worked to come up with idea and pursue how we were going to analyze and model data.
+##References
