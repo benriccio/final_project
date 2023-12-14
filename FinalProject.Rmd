@@ -89,18 +89,19 @@ residual.graph <- tibble(year=y2 %>% as.integer(),total_n_obs=unlist(yr_l)) %>%
   left_join(bird.sp) %>%
   group_by(scientificName) %>% 
   mutate(res=residuals(lm(log(n_obs)~log(total_n_obs)))) %>% 
-  ggplot(aes(year,res,col=scientificName))+geom_point()
-residual.graph
+  ggplot(aes(year,res,col=scientificName))+geom_point() + labs(caption=
+  'Residuals plot, showing effective correction for exponential increase in
+  bird watching/documenting effort over time.' )
+
 
 p.change <- data.frame(
   p.change.bird = c(NA, -71.39, -32.96, 914.65, 4.81, 58.60, -28.03, 42.21, -3.95, -7.56, -1.80),
   p.change.salmon = c(NA, -99.72, 7097.10, -96.20, 10580.49, -99.58, 8937.91, -96.04, -95.56, -95.73, 25566.21)
 )
-
-ggplot(p.change, aes(x=p.change.salmon,y=p.change.bird)) + geom_point()+geom_smooth(method='lm') + labs(
+p.change.plot <- ggplot(p.change, aes(x=p.change.salmon,y=p.change.bird)) + geom_point()+geom_smooth(method='lm') + labs(
   title = 'YoY Percent Change in Bird Count vs. YoY Percent Change in Salmon Count' 
 )
-
+residual.graph
 ```
 
 ## Discussion
