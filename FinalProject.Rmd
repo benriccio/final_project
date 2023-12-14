@@ -3,14 +3,15 @@ title: "Final Project"
 author: "Michael Bevilacqua, Alexandra Hoogendijk, Sean Kiah, Ben Riccio, Georgia Sisk"
 date: "2023-12-08"
 output: html_document
+bibliography: BIOL3140.bib
 ---
 ## Introduction 
 
-Salmon have very complex lifestyles and are one of the species of fish that are able to live in both fresh water and salt water habitats. They spend the early part of their lives in fresh water, spend most of their lives in salt water, but migrate back to fresh water habitats to spawn. After spawning, both male and female salmon typically die. This report will analyze these migrations of different species of salmon in the Skykomish river in the state of Washington to determine whether or not the increasing number of salmon impacts the population of four different species of birds. Modeling and analysis of bird and salmon count data from 2010 to 2022 within 3 kilometers of the Skykomish river will enable us to determine if the the number of birds from our four species increases in the winter when more salmon arrive. In addition, if on an individual winter there are more salmon than usual, we will also determine if the bird count will be significantly different. We already know that salmon play an immense role in freshwater ecosystems: not only are salmon  a food source for different animals such as bears, but decomposition of their post-spawning bodies and migration from salt to fresh water ecosystems provide and exchange nutrients within the water. Previous studies have analyzed the relationship between salmon and aquatic and terrestrial ecosystems @walsh2020relationships. This report will dive deeper into these phenomena and seeks to find a more specific relationship between the impact of salmon's terrestrial impact on bird species. With these important impacts in mind, climate change poses a future threat to salmon migration due to warmer waters, altered flow conditions, and changes in reproductive success (@fenkes2016potential), which would have larger impacts on the ecosystem of the Skykomish and other rivers as a whole.
+Their euryhaline and anadromous characteristics enable Salmon to live in both fresh water and salt water habitats, contributing to their unique, complex lifestyle. Salmon spend the early part of their lives in fresh water, migrate to salt water for the majority of their lives, then return back to fresh water habitats to spawn. After spawning, both male and female salmon typically die. This report will analyze the migrations of different species of salmon in the Skykomish river in the state of Washington to determine whether or not the increasing number of salmon impacts the population of four different species of birds. Modeling and analysis of bird and salmon count data from 2010 to 2022 within 3 kilometers of the Skykomish river will enable us to determine if the the number of birds from our four species increases in the winter when more salmon arrive. In addition, if on an individual winter there are more salmon than usual, we will determine if the bird count will also be significantly different. We already know that salmon play an immense role in freshwater ecosystems: not only are salmon a food source for different animals such as bears, but decomposition of their post-spawning bodies and migration between salt and fresh water ecosystems provides and exchanges nutrients within the water. Previous studies have analyzed the relationship between salmon and aquatic and terrestrial ecosystems @walsh2020relationships. This report will dive deeper into these phenomena and seeks to find a more specific relationship between salmon and their terrestrial impact on bird species. With these important impacts in mind, climate change poses a future threat to salmon migration due to warmer waters, altered flow conditions, and changes in reproductive success (@fenkes2016potential), which have the potential to greatly impact the ecosystem of the Skykomish and other rivers as well.
 
 ## Methods
 
-To begin, we used a for loop to read in our bird data, saving this data set as an RDS file in order to avoid repeating the long run-time. We then read in our salmon data as a simple csv file and filtered it to only contain data in Skykomish river from years 2010 to 2022. Next, we filtered our bird data from the saved RDS file to only include the birds found within 3 kilometers of the river. We found that human observations of bird data increased exponentially as the years went on, so, in order to get accurate results, we standardized our data to ensure that the number of birds sampled was a percentage of total birds sampled in Washington per year. This exponential increase in human observations of bird data over time is due to eBird data being biased by both the location of sightings and the years when they were taken @tang2021modeling. We then modeled the log bird counts with the log of the salmon counts for each species and for each year. We also analyzed the bird count data for the year after the salmon arrived, as the salmon spawn in the last three months of the year and die afterwards, which contributes to the added nutrients. The residuals were added, and if they were significantly off from the trend of observations, we could conclude that the salmon had a significant impact on the terrestrial ecosystem. Anova tests were then run to determine the significance of each model.
+To begin, we used a for loop to read in our bird data, saving this data set as an RDS file in order to avoid repeating the long run-time. We then read in our salmon data as a simple csv file and filtered it to only contain data in Skykomish river from years 2010 to 2022. Next, we filtered our bird data from the saved RDS file to only include the birds found within 3 kilometers of the river. We found that human observations of bird data increased exponentially as the years went on, so, in order to get accurate results, we standardized our data, ensuring that the number of birds sampled was a percentage of total birds sampled in Washington per year. This exponential increase in human observations of bird data over time is due to eBird data being biased by both the location of sightings and the years when they were taken @tang2021modeling. We then modeled the log bird counts with the log of the salmon counts for each species and for each year. We also analyzed the bird count data for the year after the salmon arrived, as the salmon spawn in the last three months of the year and die afterwards, which contributes to the added nutrients. The residuals were added, and if they were significantly off from the trend of observations, we could conclude that the salmon had a significant impact on the terrestrial ecosystem. Anova tests were then run to determine the significance of each model.
 
 ## Results
 
@@ -31,12 +32,10 @@ river.coords <- select(river.coords,Lat,Long)
 bird <- readRDS("wash_bird_data.RDS")
 fish <- read.csv("salmon-data.csv")
 
-#Filter Fish to salmon in select river and add year column 
+#Filter fish to salmon in select river and add year column 
 fish <- fish %>% 
   filter(StreamName %in% c("Sky Slough C","Sky Slough B","Sky Slough A","Snohomish R. Cont. As Skykomish R. @ R.M. 20.51")) %>%
   filter(SpeciesAbbr %in% c('CHIN','PINK','COHO','CHUM','SOCK')) 
-
-
 fish$SurveyDate <- as.Date(fish$SurveyDate,format="%m/%d/%Y")
 fish$year <- year(fish$SurveyDate)
 fish.f <- fish %>%
@@ -62,20 +61,17 @@ bird.f <- bird %>%
 
 #Change bird count values to percent of total WA observations for 
 key <- name_backbone(name='Empidonax difficilis')
-
 y2 <- 2010:2020 %>% as.character
 yr_l <- list()
 for(i in y2){
   yr_l[[i]] <- occ_count(basisOfRecord = "HUMAN_OBSERVATION",stateProvince="Washington",year=i,country="US",orderKey=key$orderKey)
 }
-
 total.obs <- tibble(year=y2 %>% as.integer(),total_n_obs=unlist(yr_l)) %>%
   left_join(bird.f) %>%
   left_join(fish.f)
 total.obs$p.bird.count <- total.obs$bird.count/total.obs$total_n_obs
 
-#assessing correlation 
-
+#Assess correlation 
 model <- lm(p.bird.count~log(salmon.count)*year,total.obs)
 summary(model)
 anova(model)
@@ -98,16 +94,15 @@ residual.graph
 
 ```
 
-
 ## Discussion
 
 ## Author Contributions
 
-Michael- Results
-Alexandra- Discussion
-Sean- Intro + methods
-Ben- Results
-Georgia- Intro + methods
-All met and worked to come up with idea and pursue how we were going to analyze and model data.
+###### Michael: Results
+###### Alexandra: Discussion
+###### Sean: Intro + Methods
+###### Ben: Results
+###### Georgia: Intro + Methods
+###### All met and worked to come up with idea and pursue how we were going to analyze and model data.
 
 ## References
