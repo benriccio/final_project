@@ -101,6 +101,7 @@ p.change <- data.frame(
 p.change.plot <- ggplot(p.change, aes(x=p.change.salmon,y=p.change.bird)) + geom_point()+geom_smooth(method='lm') + labs(
   title = 'YoY Percent Change in Bird Count vs. YoY Percent Change in Salmon Count' 
 )
+p.change.plot
 residual.graph
 ```
 
