@@ -11,7 +11,6 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(rgbif)
 library(usmap)
-library(rnaturalearth)
 library(sf)
 library(data.table)
 library(lubridate)
@@ -120,7 +119,7 @@ This plot shows that over a twelve year period, the population of birds that are
 ```{r data analysis fish graph, echo=FALSE, message=FALSE, warning=FALSE}
 #graph showing number of fish per years that we care about
 fish.graph <- ggplot(fish.f, aes(x = year, y = salmon.count)) +
-  geom_point() +
+  geom_point() +geom_line()+
   labs(title = "Number of Salmon by Year",
        x = "Year",
        y = "Salmon Count",
