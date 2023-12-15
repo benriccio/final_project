@@ -185,7 +185,7 @@ This test was then run to further assess correlation between the bird's arrival 
 <br>
 
 ## Discussion
-This report analyzed the migrations of different species of salmon in the Skykomish river in Washington to determine whether or not the increasing number of salmon impacts the population of four different species of birds.This report found that There was not a significant correlation between the counts of the different bird species and the salmon population. 
+This report analyzed the migrations of different species of salmon in the Skykomish river in Washington to determine whether or not the increasing number of salmon impacts the population of four different species of birds.This report found that there was not a significant correlation between the counts of the different bird species and the salmon population. 
 
 It was expected that there would be a significant relationship between the bird and salmon populations. A similar study found "salmon biomass has a stronger relationship with bird density and diversity across watersheds than forest composition or watershed size" @wagner2019study. In this study, the influence of salmon spawning biomass on bird populations was tested using hierarchical partitioning and Akaike’s Information Criterion (AICs) in R. This study found that streams that had  higher salmon biomass also had a greater relative abundance of all birds detected. This is what was expected out of our study. If our study has produced the same results it would be corroboration of the idea that streams with a higher salmon population would also have a higher bird population. 
 <br>
