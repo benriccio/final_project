@@ -59,15 +59,15 @@ for(i in y2){
 ```
 ## Introduction 
 
-Their euryhaline and anadromous characteristics enable Salmon to live in both fresh water and salt water habitats, contributing to their unique, complex lifestyle. Salmon spend the early part of their lives in fresh water, migrate to salt water for the majority of their lives, then return back to fresh water habitats to spawn. After spawning, both male and female salmon typically die. This report will analyze the migrations of different species of salmon in the Skykomish river in the state of Washington to determine whether or not the increasing number of salmon impacts the population of four different species of birds. Modeling and analysis of bird and salmon count data from 2010 to 2022 within 3 kilometers of the Skykomish river will enable us to determine if the the number of birds from our four species increases in the winter when more salmon arrive. 
+Their euryhaline and anadromous characteristics enable Salmon to live in both fresh water and salt water habitats, contributing to their unique, complex lifestyle. Salmon spend the early part of their lives in fresh water, migrate to salt water for the majority of their lives, then return back to fresh water habitats to spawn. After spawning, both male and female salmon typically die. This report will analyze the migrations of different species of salmon in the Skykomish river in the state of Washington to determine whether or not the increasing number of salmon impacts the population of four different species of birds. Modeling and analysis of bird and salmon count data from 2010 to 2022 within 3 kilometers of the Skykomish river will enable us to determine if the the number of birds from our four species (Wilson’s Warblers, Swainson's Thrush, Ruby Crowned Kinglet, and Pacific Slope Flycatcher) increases in the winter when more salmon arrive. 
 <br>
 <br>
 <center>
-[![The Skykomish River](https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/Skykomish_River_pano_01.jpg/640px-Skykomish_River_pano_01.jpg)]
+[![The Skykomish River](https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Skykomish%2C_WA_bridge_02.jpg/640px-Skykomish%2C_WA_bridge_02.jpg)]
 </center>
 <br>
 <br>
-In addition, if on an individual winter there are more salmon than usual, we will determine if the bird count will also be significantly different. We already know that salmon play an immense role in freshwater ecosystems: not only are salmon a food source for different animals such as bears, but decomposition of their post-spawning bodies and migration between salt and fresh water ecosystems provides and exchanges nutrients within the water. Previous studies have analyzed the relationship between salmon and aquatic and terrestrial ecosystems @walsh2020relationships. This report will dive deeper into these phenomena and seeks to find a more specific relationship between salmon and their terrestrial impact on bird species. With these important impacts in mind, climate change poses a future threat to salmon migration due to warmer waters, altered flow conditions, and changes in reproductive success (@fenkes2016potential), which have the potential to greatly impact the ecosystem of the Skykomish and other rivers as well.
+In addition, if on an individual winter there are more salmon than usual, we will determine if the bird count will also be significantly different. We already know that salmon play an immense role in freshwater ecosystems: not only are salmon a food source for different animals such as bears, but decomposition of their post-spawning bodies and migration between salt and fresh water ecosystems provides and exchanges nutrients within the water. Previous studies have analyzed the relationship between salmon and aquatic and terrestrial ecosystems @walsh2020relationships. This report will dive deeper into these phenomena and seeks to find a more specific relationship between salmon and their terrestrial impact on bird species. With these important impacts in mind, climate change poses a future threat to salmon migration due to warmer waters, altered flow conditions, and changes in reproductive success (@fenkes2016potential), which have the potential to greatly impact the ecosystem of the Skykomish and other rivers as well. 
 
 ## Methods
 
@@ -86,7 +86,7 @@ residual.graph <- tibble(year=y2 %>% as.integer(),total_n_obs=unlist(yr_l)) %>%
   group_by(scientificName) %>% 
   mutate(res=residuals(lm(log(n_obs)~log(total_n_obs)))) %>% 
   ggplot(aes(year,res,col=scientificName))+geom_point() + labs(caption=
-  'Residuals plot, showing effective correction for exponential increase in
+  'Graph 1: Residuals plot, showing effective correction for exponential increase in
   bird watching/documenting effort over time.' )
 residual.graph
 ```
@@ -95,8 +95,8 @@ This exponential increase in human observations of bird data over time is due to
 
 ## Results
 
-
-```{r data analysis, echo=FALSE, message=FALSE, warning=FALSE}
+In order to analyze the correlation of bird species arrival with salmon in the Skykomish river, the data will first be presented via plots in order to visualize the result of human observations. 
+```{r data analysis bird graph, echo=FALSE, message=FALSE, warning=FALSE}
 #graph showing number of birds per year
 bird.sp_standard <- bird.sp %>%
   mutate(n_obs_standard = scale(n_obs))
@@ -108,13 +108,16 @@ bird.graph <- ggplot(bird.sp_standard, aes(x = year, y = n_obs_standard, color =
        x = "Year",
        y = "Standardized Number of Birds",
        color = "Species",
-       caption = "Graph 2: This graph depicts a standardized visual (using Z scores) of the amount of birds,\n by species, arriving to this location over the years.") +
+       caption = "Graph 2: Observations of birds by species over twelve years.") +
   theme_minimal() +
   scale_x_continuous(breaks = seq(min(bird.sp_standard$year), max(bird.sp_standard$year), by = 1))
 
 bird.graph
-
-
+```
+<br>
+This plot shows that over a twelve year period, the population of birds that are observed in the location of interest decreased in three out of the four species (the exception being Corthylio calendula). This data has been standardized using Z-scores in order to account for the bias, namely an increase of observations due to the results of the pandemic. 
+<br>
+```{r data analysis fish graph, echo=FALSE, message=FALSE, warning=FALSE}
 #graph showing number of fish per years that we care about
 fish.graph <- ggplot(fish.f, aes(x = year, y = salmon.count)) +
   geom_point() +
@@ -124,8 +127,11 @@ fish.graph <- ggplot(fish.f, aes(x = year, y = salmon.count)) +
        caption = "Graph 3: This graph depicts the number of salmon observed in the Skykomish river from 2010 to 2020") +
   theme_minimal()
 fish.graph
-
-
+```
+<br>
+This plot illustrates that the occurrence of the salmon run is not a yearly event. Instead, there are often gaps of two to three years in between the return of large numbers of salmon in the Skykomish river. This leads to the assesment of correlation between these salmon and bird at this location.
+<br>
+```{r data analysis correlation, echo=FALSE, message=FALSE, warning=FALSE}
 #Change bird count values to percent of total WA observations for 
 
 total.obs <- tibble(year=y2 %>% as.integer(),total_n_obs=unlist(yr_l)) %>%
@@ -137,7 +143,11 @@ total.obs$p.bird.count <- total.obs$bird.count/total.obs$total_n_obs
 model <- lm(p.bird.count~log(salmon.count)*year,total.obs)
 summary(model)
 anova(model)
-
+```
+<br>
+This data was modeled, and an Anova was used to show the significance the model and of the factors in the model. The best model was log(salmon.count), and the only significant factor was the year value. This means that there is significant difference in the number of bird observations based on the year. 
+<br>
+```{r data analysis correlation 2, echo=FALSE, message=FALSE, warning=FALSE}
 #other things to include in final submission 
 
 #graph showing that we effectively controlled for increasing effort in bird observation data 
@@ -147,13 +157,6 @@ bird.sp <-bird %>%
   summarise(bird.count= n()) %>%
   rename(n_obs=bird.count)
 
-residual.graph <- tibble(year=y2 %>% as.integer(),total_n_obs=unlist(yr_l)) %>% 
-  left_join(bird.sp) %>%
-  group_by(scientificName) %>% 
-  mutate(res=residuals(lm(log(n_obs)~log(total_n_obs)))) %>% 
-  ggplot(aes(year,res,col=scientificName))+geom_point() + labs(caption=
-  'Residuals plot, showing effective correction for exponential increase in
-  bird watching/documenting effort over time.' )
 
 
 p.change <- data.frame(
@@ -161,19 +164,35 @@ p.change <- data.frame(
   p.change.salmon = c(NA, -99.72, 7097.10, -96.20, 10580.49, -99.58, 8937.91, -96.04, -95.56, -95.73, 25566.21)
 )
 p.change.plot <- ggplot(p.change, aes(x=p.change.salmon,y=p.change.bird)) + geom_point()+geom_smooth(method='lm') + labs(
-  title = 'YoY Percent Change in Bird Count vs. YoY Percent Change in Salmon Count' 
+  title = 'YoY Percent Change in Bird Count vs. YoY Percent Change in Salmon Count' ,
+  caption = "Graph 4: This plot depicts the correlation, if any, of the percent change of salmon versus percent change of birds"
 )
 p.change.plot
-
 ```
+<br>
+This plot was run to initially assess the correlation between salmon and birds. The majority of the values sit around 0, meaning that there was no correlation found between the percent change of salmon versus the percent change of birds. 
+<br>
+```{r data analysis correlation 3, echo=FALSE, message=FALSE, warning=FALSE}
+#spearman correlation test
+merge_data <- inner_join(fish.f, bird.sp, by = "year")
+
+correlation_result <- cor.test(merge_data$salmon.count, merge_data$n_obs, method = "spearman")
+
+cat("Spearman Correlation:", correlation_result$estimate, "\n")
+```
+<br>
+This test was then run to further assess correlation between the bird's arrival and the energy that the dead salmon provide. The result (-0.0718) indicates a weak negative relationship between the two variables being compared.
+<br>
 
 ## Discussion
 This report analyzed the migrations of different species of salmon in the Skykomish river in Washington to determine whether or not the increasing number of salmon impacts the population of four different species of birds.This report found that There was not a significant correlation between the counts of the different bird species and the salmon population. 
 
 It was expected that there would be a significant relationship between the bird and salmon populations. A similar study found "salmon biomass has a stronger relationship with bird density and diversity across watersheds than forest composition or watershed size" @wagner2019study. 
+<br>
+
 ## Author Contributions
 
-###### Michael: Results
+###### Michael: Results +  Edited Methods and Intro
 ###### Alexandra: Discussion
 ###### Sean: Intro + Methods
 ###### Ben: Results
