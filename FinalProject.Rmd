@@ -114,7 +114,7 @@ residual.graph
 ```
 
 ## Discussion
-
+This report analyzed the migrations of different species of salmon in the Skykomish river in Washington to determine whether or not the increasing number of salmon impacts the population of four different species of birds.This report found that There was not a significant correlation between the counts of the different bird species and the salmon population.   
 ## Author Contributions
 
 ###### Michael: Results
